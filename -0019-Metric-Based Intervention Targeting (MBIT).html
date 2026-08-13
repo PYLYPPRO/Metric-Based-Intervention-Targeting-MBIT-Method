@@ -1,0 +1,64 @@
+<div class="container">
+    <h1>Metric-Based Intervention Targeting (MBIT)</h1>
+    <p class="explanation">
+        <strong>Method:</strong> Metric-Based Intervention Targeting (MBIT) uses the Expected Value of Intervention (EVI) to prioritize resources. EVI accounts for Churn Probability (P), Customer Lifetime Value (CLV), Intervention Efficacy (E, probability of success), and Intervention Cost (C). We choose the intervention with the highest EVI.
+    </p>
+
+    <label for="mb_churn_prob">1. Churn Probability (P) (0.0 - 1.0):</label>
+    <input type="number" id="mb_churn_prob" value="0.40" min="0.0" max="1.0" step="0.05">
+    
+    <label for="mb_clv">2. Student Lifetime Value (CLV, $):</label>
+    <input type="number" id="mb_clv" value="50000" min="10000" step="5000">
+
+    <label for="mb_cost_a">3. Intervention A (Auto-Email) Cost (C) and Efficacy (E):</label>
+    <input type="number" id="mb_cost_a" value="10" min="1" max="100" step="1">
+    <input type="number" id="mb_efficacy_a" value="0.10" min="0.05" max="0.5" step="0.05">
+
+    <label for="mb_cost_b">4. Intervention B (Personal Call) Cost (C) and Efficacy (E):</label>
+    <input type="number" id="mb_cost_b" value="100" min="10" max="500" step="10">
+    <input type="number" id="mb_efficacy_b" value="0.45" min="0.1" max="0.9" step="0.05">
+
+    <button onclick="calculateEVI()">Calculate Optimal Intervention (EVI)</button>
+    <div id="result_mbit"></div>
+</div>
+
+<script>
+// --- Metric-Based Intervention Targeting (MBIT) in JavaScript ---
+
+function calculateEVI() {
+    const p = parseFloat(document.getElementById('mb_churn_prob').value);
+    const clv = parseFloat(document.getElementById('mb_clv').value);
+    
+    const costA = parseFloat(document.getElementById('mb_cost_a').value);
+    const efficacyA = parseFloat(document.getElementById('mb_efficacy_a').value);
+    
+    const costB = parseFloat(document.getElementById('mb_cost_b').value);
+    const efficacyB = parseFloat(document.getElementById('mb_efficacy_b').value);
+
+    // EVI Formula: EVI = (P * CLV) * E - C
+    const eviA = (p * clv) * efficacyA - costA;
+    const eviB = (p * clv) * efficacyB - costB;
+
+    const resultDiv = document.getElementById('result_mbit');
+    
+    let optimalIntervention = (eviA > eviB) ? 'A (Automated Email)' : 'B (Personalized Call)';
+    let optimalEVI = Math.max(eviA, eviB).toFixed(2);
+
+    let message = `<h2>METRIC-BASED INTERVENTION REPORT (CLV: $${clv.toLocaleString()})</h2>`;
+    message += `<p><strong>Expected Value of Intervention A (Auto-Email): $${eviA.toFixed(2)}</strong></p>`;
+    message += `<p><strong>Expected Value of Intervention B (Personal Call): $${eviB.toFixed(2)}</strong></p>`;
+    
+    message += `<h3>OPTIMAL STRATEGY:</h3>`;
+    message += `<p><strong>Optimal Intervention: <span style="font-size: 1.2em; color: ${optimalEVI > 0 ? 'green' : 'red'};">${optimalIntervention}</span></strong> (EVI: $${optimalEVI})</p>`;
+
+    if (optimalEVI > 0) {
+        message += `<p><strong>ACTION:</strong> The expected monetary return from Intervention ${optimalIntervention} outweighs its cost. Allocate resources immediately to this specific action. The **MBIT** model ensures resources are spent where they maximize revenue.</p>`;
+    } else {
+        message += `<p><strong>ACTION:</strong> Both interventions have a negative EVI. **Recommendation:** Do not intervene at this time or find a much cheaper/more effective intervention (EVI is too low to justify the expense, relative to the risk and CLV).</p>`;
+    }
+
+    document.getElementById('result_mbit').innerHTML = message;
+}
+</script>
+</body>
+</html>
